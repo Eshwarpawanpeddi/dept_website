@@ -160,7 +160,6 @@ header{
 .about-section{
     width: 100%;
     height: 100%;
-    margin-top: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -452,17 +451,29 @@ header{
     }
 }
 
-.autoTakeFull{
-    animation: autoTakeFullAnimation both;
-    animation-timeline: view(70% 65%);
+.image-box.image-unfold-container {
+  /* This is the class applied to your image container */
+  animation: unfoldImage linear forwards;
+  animation-timeline: view();
+  will-change: transform;
 }
 
-@keyframes autoTakeFullAnimation {
-    to {
+@keyframes unfoldImage {
+    0% {
+        width: 360px;
+        height: 510px;
+        border-radius: 50px;
+        transform: scale(0.5);
+        opacity: 0.5;
+        clip-path: inset(50% 49% 50% 49%);
+    }
+    100% {
         width: 100%;
         height: 100vh;
         border-radius: 0;
-        margin-bottom: 100px;
+        transform: scale(1);
+        opacity: 1;
+        clip-path: inset(0% 0% 0% 0%);
     }
 }
 
