@@ -1,0 +1,259 @@
+/* Add these styles to your existing CSS */
+
+/* Enhanced gallery item effects */
+.gallery-item {
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
+                box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                filter 0.6s ease;
+    will-change: transform, opacity, filter;
+    transform-origin: center center;
+}
+
+/* Tilt effect for gallery items */
+.gallery-item.tilt-effect {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+/* Glow effect when items are in focus */
+.gallery-item.in-focus {
+    box-shadow: 0 10px 30px rgba(52, 152, 219, 0.4), 
+                0 0 30px rgba(52, 152, 219, 0.2);
+    z-index: 10;
+}
+
+/* 3D image container for depth effects */
+.image-container-3d {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Layered image effect */
+.image-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transform-style: preserve-3d;
+}
+
+.image-layer:nth-child(1) {
+    transform: translateZ(0px);
+    filter: brightness(0.8);
+}
+
+.image-layer:nth-child(2) {
+    transform: translateZ(5px);
+    filter: brightness(0.9) blur(1px);
+    opacity: 0.9;
+}
+
+.image-layer:nth-child(3) {
+    transform: translateZ(10px);
+    filter: brightness(1) blur(2px);
+    opacity: 0.8;
+}
+
+/* Reflection effect */
+.gallery-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.2),
+        rgba(255, 255, 255, 0)
+    );
+    transform: translateY(100%);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+}
+
+.gallery-item:hover::after {
+    transform: translateY(0);
+}
+
+/* Neon glow effect on hover */
+.gallery-item:hover {
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.5),
+                0 0 30px rgba(52, 152, 219, 0.3),
+                0 0 45px rgba(52, 152, 219, 0.1);
+}
+
+/* Scroll-triggered animations */
+@keyframes fadeScale {
+    from { 
+        opacity: 0; 
+        transform: scale(0.8) translateY(50px);
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes rotateIn {
+    from {
+        opacity: 0;
+        transform: rotateY(45deg) translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: rotateY(0) translateX(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Apply different animations to gallery items */
+.gallery-item:nth-child(3n+1).visible {
+    animation: fadeScale 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.gallery-item:nth-child(3n+2).visible {
+    animation: rotateIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.gallery-item:nth-child(3n+3).visible {
+    animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Create a ripple effect for clicked items */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Kaleidoscope effect */
+.kaleidoscope-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(52, 152, 219, 0.2) 0%,
+        rgba(52, 152, 219, 0) 50%,
+        rgba(52, 152, 219, 0.2) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+}
+
+.gallery-item:hover .kaleidoscope-effect {
+    opacity: 1;
+    animation: rotateBg 10s linear infinite;
+}
+
+@keyframes rotateBg {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Staggered visibility animation */
+.gallery-item {
+    opacity: 0;
+}
+
+.gallery-item.staggered-visible {
+    animation-fill-mode: forwards;
+}
+
+/* Floating animation for in-view items */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.gallery-item.floating {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Create wave effect across gallery */
+@keyframes wave {
+    0% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-15px) rotate(2deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(10px) rotate(-2deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* Blur filter on gallery container for depth effect */
+.gallery-container {
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+}
+
+/* Dynamic grid animation */
+@keyframes gridChange {
+    0% { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+    50% { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+    100% { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+}
+
+/* Shimmering overlay effect */
+.shimmer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-100%);
+    animation: shimmer 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes shimmer {
+    to { transform: translateX(100%); }
+}

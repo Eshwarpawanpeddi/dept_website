@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="gstyle.css">
+    <title>College Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            transform: rotate(45deg);
+            animation: headerShine 8s linear infinite;
+        }
+        
+        @keyframes headerShine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            animation: slideUp 1.2s ease-in-out;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .gallery-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 1.5s ease-in-out;
+            position: sticky;
+            top: 0;
+            background: rgba(245, 245, 245, 0.9);
+            padding: 1rem;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-button {
+            background: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .filter-button:hover, .filter-button.active {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            height: 250px;
+            background-color: #e0e0e0;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .gallery-item.fade-in {
+            animation: fadeInUp 0.6s ease-in-out forwards;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-item .caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover .caption {
+            transform: translateY(0);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow: auto;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 2rem;
+        }
+        
+        .modal-img {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+            animation: zoomIn 0.5s ease;
+        }
+        
+        .modal-caption {
+            color: white;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            max-width: 800px;
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close:hover {
+            color: #3498db;
+        }
+        
+        .navigation {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+        
+        .nav-btn {
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            user-select: none;
+        }
+        
+        .nav-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .upload-container {
+            text-align: center;
+            margin: 3rem auto;
+            max-width: 600px;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .upload-container.visible {
+            animation: fadeInUp 0.8s ease-in-out forwards;
+        }
+        
+        .upload-title {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        #upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .file-input-container {
+            position: relative;
+            padding: 2rem;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-container:hover {
+            background-color: #f0f8ff;
+        }
+        
+        #file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .submit-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            transform: rotate(45deg);
+            animation: footerShine 10s linear infinite;
+        }
+        
+        @keyframes footerShine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #3498db;
+        }
+        
+        .copyright {
+            width: 100%;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 99;
+            cursor: pointer;
+        }
+        
+        .scroll-indicator.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .scroll-indicator:hover {
+            background: #2980b9;
+            transform: translateY(-5px);
+        }
+        
+        .scroll-arrow {
+            font-size: 1.5rem;
+            transform: rotate(-90deg);
+        }
+        
+        /* Enhanced Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes floatingCard {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        /* Parallax effect */
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(45deg, rgba(52, 152, 219, 0.05) 25%, transparent 25%, transparent 50%, rgba(52, 152, 219, 0.05) 50%, rgba(52, 152, 219, 0.05) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            z-index: 0;
+            opacity: 0.3;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="parallax-bg"></div>
+        <h1>College Gallery</h1>
+        <p class="subtitle">Capturing moments, preserving memories</p>
+    </header>
+    
+    <div class="gallery-container">
+        <div class="filter-buttons">
+            <button class="filter-button active" data-filter="all">All</button>
+            <button class="filter-button" data-filter="events">Events</button>
+            <button class="filter-button" data-filter="campus">Campus</button>
+            <button class="filter-button" data-filter="students">Students</button>
+            <button class="filter-button" data-filter="sports">Sports</button>
+            <button class="filter-button" data-filter="academics">Academics</button>
+        </div>
+        
+        <div class="gallery" id="gallery">
+            <!-- Gallery items will be dynamically added here -->
+        </div>
+    </div>
+    
+    <div class="upload-container" id="upload-container">
+        <h2 class="upload-title">Add to Gallery</h2>
+        <form id="upload-form">
+            <div class="file-input-container">
+                <p>Drag & drop your image here or click to browse</p>
+                <input type="file" id="file-input" accept="image/*" multiple>
+            </div>
+            
+            <div class="form-group">
+                <label for="image-title">Image Title</label>
+                <input type="text" id="image-title" placeholder="Enter image title">
+            </div>
+            
+            <div class="form-group">
+                <label for="image-description">Description</label>
+                <input type="text" id="image-description" placeholder="Enter image description">
+            </div>
+            
+            <div class="form-group">
+                <label for="image-category">Category</label>
+                <select id="image-category">
+                    <option value="events">Events</option>
+                    <option value="campus">Campus</option>
+                    <option value="students">Students</option>
+                    <option value="sports">Sports</option>
+                    <option value="academics">Academics</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="submit-btn">Upload to Gallery</button>
+        </form>
+    </div>
+    
+    <div id="galleryModal" class="modal">
+        <span class="close">&times;</span>
+        <div class="modal-content">
+            <img id="modalImg" class="modal-img" src="" alt="">
+            <div class="modal-caption" id="modalCaption"></div>
+        </div>
+        <div class="navigation">
+            <span class="nav-btn" id="prevBtn">&#10094;</span>
+            <span class="nav-btn" id="nextBtn">&#10095;</span>
+        </div>
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+    
+    <div class="scroll-indicator" id="scrollTop">
+        <span class="scroll-arrow">➔</span>
+    </div>
+    
+    <footer>
+        <div class="parallax-bg"></div>
+        <div class="footer-content">
+            <div class="footer-logo">College Gallery</div>
+            <div class="footer-links">
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div class="copyright">© 2025 College Gallery. All rights reserved.</div>
+        </div>
+    </footer>
+    
+    <script>
+        // Sample gallery data
+        const sampleImages = [
+            {
+                src: "./img/1.jpg",
+                title: "Spring Festival 2024",
+                description: "Annual spring celebration on campus featuring performances, food and activities.",
+                category: "events"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Main Campus Building",
+                description: "The historic main building that serves as the centerpiece of our campus.",
+                category: "campus"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Student Council Meeting",
+                description: "Student leaders discussing upcoming initiatives and events.",
+                category: "students"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Basketball Championship",
+                description: "Our team winning the regional basketball championship.",
+                category: "sports"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Physics Laboratory",
+                description: "Students conducting experiments in our state-of-the-art physics lab.",
+                category: "academics"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Graduation Ceremony",
+                description: "Celebrating our graduates' achievements and new beginnings.",
+                category: "events"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Library Reading Room",
+                description: "The quiet and peaceful reading room in our main library.",
+                category: "campus"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Student Art Exhibition",
+                description: "Showcasing creative works from our talented art students.",
+                category: "students"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Soccer Tournament",
+                description: "Intense match during the inter-college soccer tournament.",
+                category: "sports"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Robotics Workshop",
+                description: "Engineering students building and programming robots.",
+                category: "academics"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Alumni Reunion",
+                description: "Former students gathering to reconnect and reminisce.",
+                category: "events"
+            },
+            {
+                src: "/api/placeholder/400/320",
+                title: "Campus Garden",
+                description: "The beautiful botanical garden in the heart of our campus.",
+                category: "campus"
+            }
+        ];
+        
+        // DOM Elements
+        const gallery = document.getElementById('gallery');
+        const modal = document.getElementById('galleryModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalCaption = document.getElementById('modalCaption');
+        const closeBtn = document.querySelector('.close');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const filterButtons = document.querySelectorAll('.filter-button');
+        const uploadForm = document.getElementById('upload-form');
+        const fileInput = document.getElementById('file-input');
+        const loading = document.getElementById('loading');
+        const scrollTop = document.getElementById('scrollTop');
+        const uploadContainer = document.getElementById('upload-container');
+        
+        // Current image index for modal navigation
+        let currentIndex = 0;
+        // All gallery items currently displayed
+        let displayedItems = [];
+        
+        // Initialize gallery with sample images
+        function initGallery() {
+            displayedItems = [...sampleImages];
+            renderGallery(displayedItems);
+            
+            // Set up intersection observer for scroll animations
+            setupScrollObserver();
+        }
+        
+        // Set up intersection observer for scroll animations
+        function setupScrollObserver() {
+            const options = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, options);
+            
+            // Observe gallery items
+            document.querySelectorAll('.gallery-item').forEach(item => {
+                observer.observe(item);
+            });
+            
+            // Observe upload container
+            observer.observe(uploadContainer);
+        }
+        
+        // Render gallery items
+        function renderGallery(items) {
+            gallery.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.dataset.index = index;
+                galleryItem.dataset.category = item.category;
+                
+                galleryItem.innerHTML = `
+                    <img src="${item.src}" alt="${item.title}">
+                    <div class="caption">
+                        <h3>${item.title}</h3>
+                    </div>
+                `;
+                
+                galleryItem.addEventListener('click', () => openModal(index));
+                gallery.appendChild(galleryItem);
+            });
+            
+            // Re-setup intersection observer after rendering
+            setupScrollObserver();
+        }
+        
+        // Filter gallery items
+        function filterGallery(category) {
+            if (category === 'all') {
+                displayedItems = [...sampleImages];
+            } else {
+                displayedItems = sampleImages.filter(item => item.category === category);
+            }
+            
+            renderGallery(displayedItems);
+        }
+        
+        // Open modal with image
+        function openModal(index) {
+            currentIndex = index;
+            modalImg.src = displayedItems[index].src;
+            modalCaption.innerHTML = `
+                <h3>${displayedItems[index].title}</h3>
+                <p>${displayedItems[index].description}</p>
+            `;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close modal
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Navigate to next image
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % displayedItems.length;
+            updateModalImage();
+        }
+        
+        // Navigate to previous image
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + displayedItems.length) % displayedItems.length;
+            updateModalImage();
+        }
+        
+        // Update modal image with animation
+        function updateModalImage() {
+            modalImg.style.opacity = 0;
+            modalCaption.style.opacity = 0;
+            
+            setTimeout(() => {
+                modalImg.src = displayedItems[currentIndex].src;
+                modalCaption.innerHTML = `
+                    <h3>${displayedItems[currentIndex].title}</h3>
+                    <p>${displayedItems[currentIndex].description}</p>
+                `;
+                
+                modalImg.style.opacity = 1;
+                modalCaption.style.opacity = 1;
+            }, 300);
+        }
+        
+        // Handle file input change
+        function handleFileInput(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const previewContainer = document.querySelector('.file-input-container');
+                previewContainer.innerHTML = '';
+                
+                for (let i = 0; i < Math.min(files.length, 5); i++) {
+                    const img = document.createElement('img');
+                    img.style.maxHeight = '100px';
+                    img.style.margin = '5px';
+                    img.src = URL.createObjectURL(files[i]);
+                    previewContainer.appendChild(img);
+                }
+                
+                if (files.length > 5) {
+                    const moreText = document.createElement('p');
+                    moreText.textContent = `+${files.length - 5} more files selected`;
+                    previewContainer.appendChild(moreText);
+                }
+                
+                // Add the file input back
+                const newFileInput = document.createElement('input');
+                newFileInput.type = 'file';
+                newFileInput.id = 'file-input';
+                newFileInput.accept = 'image/*';
+                newFileInput.multiple = true;
+                newFileInput.addEventListener('change', handleFileInput);
+                newFileInput.style.position = 'absolute';
+                newFileInput.style.top = '0';
+                newFileInput.style.left = '0';
+                newFileInput.style.width = '100%';
+                newFileInput.style.height = '100%';
+                newFileInput.style.opacity = '0';
+                newFileInput.style.cursor = 'pointer';
+                
+                previewContainer.appendChild(newFileInput);
+            }
+        }
+        
+        // Handle form submission
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('image-title').value || 'Untitled';
+            const description = document.getElementById('image-description').value || 'No description';
+            const category = document.getElementById('image-category').value;
+            const files = document.getElementById('file-input').files;
+            
+            if (files.length === 0) {
+                alert('Please select at least one image');
+                return;
+            }
+            
+            // Show loading animation
+            loading.style.display = 'flex';
+            
+            // Simulate upload delay
+            setTimeout(() => {
+                for (let i = 0; i < files.length; i++) {
+                    const newImage = {
+                        src: URL.createObjectURL(files[i]),
+                        title: files.length > 1 ? `${title} (${i+1})` : title,
+                        description: description,
+                        category: category
+                    };
+                    
+                    sampleImages.unshift(newImage);
+                }
+                
+                // Reset form
+                uploadForm.reset();
+                document.querySelector('.file-input-container').innerHTML = `
+                    <p>Drag & drop your image here or click to browse</p>
+                    <input type="file" id="file-input" accept="image/*" multiple>
+                `;
+                
+                document.getElementById('file-input').addEventListener('change', handleFileInput);
+                
+                // Update gallery
+                filterGallery(document.querySelector('.filter-button.active').dataset.filter);
+                
+                // Hide loading animation
+                loading.style.display = 'none';
+                
+                // Scroll to gallery to see new images
+                gallery.scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+        
+        // Handle scrolling events
+        function handleScroll() {
+            const scrollY = window.scrollY;
+            
+            // Show/hide scroll to top button
+            if (scrollY > 300) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+            
+            // Add floating effect to visible gallery items based on scroll position
+            const galleryItems = document.querySelectorAll('.gallery-item.fade-in');
+            galleryItems.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    const parallaxValue = (rect.top / window.innerHeight) * 10;
+                    item.style.transform = `translateY(${parallaxValue}px)`;
+                }
+            });
+// Parallax effect for header and footer
+const header = document.querySelector('header');
+    const footer = document.querySelector('footer');
+    const headerOffset = window.scrollY * 0.4;
+    const footerOffset = (document.documentElement.scrollHeight - window.innerHeight - window.scrollY) * 0.1;
+    
+    header.style.backgroundPositionY = `${headerOffset}px`;
+    footer.style.backgroundPositionY = `${-footerOffset}px`;
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize gallery
+    initGallery();
+    
+    // Filter button click events
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            filterGallery(button.dataset.filter);
+        });
+    });
+    
+    // Modal navigation
+    closeBtn.addEventListener('click', closeModal);
+    nextBtn.addEventListener('click', nextImage);
+    prevBtn.addEventListener('click', prevImage);
+    
+    // Close modal when clicking outside of image
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Keyboard navigation for modal
+    document.addEventListener('keydown', (e) => {
+        if (modal.style.display === 'block') {
+            if (e.key === 'Escape') {
+                closeModal();
+            } else if (e.key === 'ArrowRight') {
+                nextImage();
+            } else if (e.key === 'ArrowLeft') {
+                prevImage();
+            }
+        }
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', handleFileInput);
+    
+    // Form submission
+    uploadForm.addEventListener('submit', handleFormSubmit);
+    
+    // Scroll to top button
+    scrollTop.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    // File drag and drop functionality
+    const dropZone = document.querySelector('.file-input-container');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('highlight');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('highlight');
+        }, false);
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        document.getElementById('file-input').files = files;
+        handleFileInput({target: {files}});
+    }, false);
+    
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll);
+    
+    // Make upload container visible after a delay
+    setTimeout(() => {
+        uploadContainer.classList.add('visible');
+    }, 500);
+});
+
+// Add lazy loading for images
+if ('IntersectionObserver' in window) {
+    const lazyImageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.add('loaded');
+                lazyImageObserver.unobserve(img);
+            }
+        });
+    });
+    
+    document.querySelectorAll('img[data-src]').forEach(img => {
+        lazyImageObserver.observe(img);
+    });
+}
+
+// Update copyright year
+document.querySelector('.copyright').textContent = `© ${new Date().getFullYear()} College Gallery. All rights reserved.`;
+// Enhanced Gallery Animation System
+// Add this to your existing JavaScript
+
+// Animation configuration
+const animationConfig = {
+    perspective: 1000,
+    rotationIntensity: 0.05,
+    floatRange: 15,
+    scaleRange: 0.05,
+    colorShiftIntensity: 10,
+    blurMax: 5,
+    glowIntensity: 0.3,
+    staggerDelay: 50,
+    transitionSpeed: 0.8,
+    zoomRange: 0.1
+  };
+  
+  // Create advanced parallax and animation effects
+  function setupAdvancedAnimations() {
+    // Get all gallery items that can be animated
+    const items = document.querySelectorAll('.gallery-item');
+    
+    // Set initial 3D perspective on the gallery container
+    const gallery = document.getElementById('gallery');
+    gallery.style.perspective = `${animationConfig.perspective}px`;
+    
+    // Create a new animation timeline
+    let animations = [];
+    let lastScrollY = window.scrollY;
+    let scrollDirection = 'down';
+    let ticking = false;
+    
+    // Initialize animation properties for each item
+    items.forEach((item, index) => {
+      // Add custom animation properties to each item
+      item.dataset.rotationX = Math.random() * 10 - 5;
+      item.dataset.rotationY = Math.random() * 10 - 5;
+      item.dataset.floatOffset = Math.random() * animationConfig.floatRange - (animationConfig.floatRange / 2);
+      item.dataset.scaleOffset = 1 + (Math.random() * animationConfig.scaleRange);
+      item.dataset.hueRotate = Math.random() * 360;
+      
+      // Add 3D transform style
+      item.style.transformStyle = 'preserve-3d';
+      item.style.backfaceVisibility = 'hidden';
+      
+      // Add staggered transition delays
+      item.style.transitionDelay = `${index * animationConfig.staggerDelay}ms`;
+      item.style.transition = `transform ${animationConfig.transitionSpeed}s cubic-bezier(0.23, 1, 0.32, 1), 
+                              opacity ${animationConfig.transitionSpeed}s ease,
+                              filter ${animationConfig.transitionSpeed}s ease`;
+      
+      // Create reflective surface effect
+      const reflection = document.createElement('div');
+      reflection.className = 'reflection';
+      reflection.style.position = 'absolute';
+      reflection.style.top = '0';
+      reflection.style.left = '0';
+      reflection.style.width = '100%';
+      reflection.style.height = '100%';
+      reflection.style.background = 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0))';
+      reflection.style.transform = 'translateZ(1px)';
+      reflection.style.pointerEvents = 'none';
+      reflection.style.opacity = '0';
+      reflection.style.transition = 'opacity 0.5s ease';
+      item.appendChild(reflection);
+      
+      // Add mouseover effects for each item
+      item.addEventListener('mouseover', () => {
+        item.style.zIndex = '10';
+        reflection.style.opacity = '0.7';
+      });
+      
+      item.addEventListener('mouseout', () => {
+        item.style.zIndex = '1';
+        reflection.style.opacity = '0';
+      });
+    });
+    
+    // Main scroll animation handler
+    function animateOnScroll() {
+      // Determine scroll direction
+      scrollDirection = window.scrollY > lastScrollY ? 'down' : 'up';
+      lastScrollY = window.scrollY;
+      
+      // Calculate viewport metrics
+      const viewportHeight = window.innerHeight;
+      const viewportMiddle = window.scrollY + (viewportHeight / 2);
+      
+      // Update animations for each item
+      items.forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        const itemMiddle = rect.top + window.scrollY + (rect.height / 2);
+        
+        // Calculate how far the item is from the middle of the viewport (normalized from -1 to 1)
+        const distanceFromMiddle = (itemMiddle - viewportMiddle) / (viewportHeight / 2);
+        const absDistance = Math.abs(distanceFromMiddle);
+        
+        // Only animate items that are in or near the viewport
+        if (absDistance < 1.5) {
+          // Calculate item visibility (0 to 1)
+          const visibility = 1 - (absDistance / 1.5);
+          
+          // Apply 3D rotation based on scroll position and direction
+          const rotationXAmount = parseFloat(item.dataset.rotationX) * distanceFromMiddle * animationConfig.rotationIntensity;
+          const rotationYAmount = parseFloat(item.dataset.rotationY) * distanceFromMiddle * animationConfig.rotationIntensity;
+          
+          // Apply floating effect
+          const floatAmount = parseFloat(item.dataset.floatOffset) * Math.sin(Date.now() / 1000);
+          
+          // Apply scale effect based on visibility
+          const scaleAmount = 1 + ((1 - absDistance) * animationConfig.zoomRange);
+          
+          // Apply color effects based on scroll direction and position
+          const hueRotateAmount = scrollDirection === 'down' ? 
+            parseFloat(item.dataset.hueRotate) * visibility : 
+            -parseFloat(item.dataset.hueRotate) * visibility;
+          
+          // Apply blur effect for items far from center
+          const blurAmount = Math.max(0, (absDistance - 0.5) * animationConfig.blurMax);
+          
+          // Apply transforms with timing offsets for wave effect
+          const delay = parseInt(item.dataset.index) * 20;
+          setTimeout(() => {
+            // Apply all transform effects
+            item.style.transform = `
+              perspective(${animationConfig.perspective}px)
+              translate3d(0, ${floatAmount}px, 0)
+              rotateX(${rotationXAmount}deg)
+              rotateY(${rotationYAmount}deg)
+              scale(${scaleAmount})
+            `;
+            
+            // Apply filter effects (color shifts, blur, glow)
+            item.style.filter = `
+              hue-rotate(${hueRotateAmount}deg)
+              blur(${blurAmount}px)
+              brightness(${1 + (visibility * 0.1)})
+            `;
+            
+            // Apply box shadow glow effect based on visibility
+            item.style.boxShadow = `0 ${5 + (visibility * 15)}px ${20 + (visibility * 30)}px rgba(52, 152, 219, ${visibility * animationConfig.glowIntensity})`;
+            
+            // Adjust image saturation based on visibility
+            const image = item.querySelector('img');
+            if (image) {
+              image.style.filter = `saturate(${1 + (visibility * 0.5)})`;
+            }
+          }, delay);
+        }
+      });
+      
+      ticking = false;
+    }
+    
+    // Optimize scroll handler with requestAnimationFrame
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          animateOnScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+    
+    // Initial animation
+    animateOnScroll();
+    
+    // Add scroll-triggered animation sequences
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: buildThresholdList()
+    };
+    
+    function buildThresholdList() {
+      let thresholds = [];
+      let numSteps = 20;
+      for (let i = 0; i <= numSteps; i++) {
+        thresholds.push(i / numSteps);
+      }
+      return thresholds;
+    }
+    
+    const sequenceObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Create a progressive animation effect when items come into view
+        if (entry.isIntersecting) {
+          const item = entry.target;
+          const ratio = entry.intersectionRatio;
+          
+          // Apply a smooth fade-in with progressive transforms
+          const progressiveScale = 0.8 + (0.2 * ratio);
+          const progressiveY = 50 * (1 - ratio);
+          const progressiveOpacity = ratio;
+          
+          item.style.transform = `translateY(${progressiveY}px) scale(${progressiveScale})`;
+          item.style.opacity = progressiveOpacity;
+          
+          // Apply whimsical rotations for items coming into view
+          if (ratio > 0.8) {
+            const randomRotate = (Math.random() * 10) - 5;
+            item.style.transform = `translateY(0) scale(1) rotate(${randomRotate}deg)`;
+          }
+        }
+      });
+    }, observerOptions);
+    
+    // Observe all gallery items for sequence animations
+    items.forEach(item => {
+      sequenceObserver.observe(item);
+    });
+    
+    // Add animated grid layout changes on scroll
+    let lastScrollPosition = 0;
+    let gridAnimationTicking = false;
+    
+    function updateGridLayout() {
+      const scrollProgress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      const currentScrollPosition = window.scrollY;
+      
+      // Check if we've scrolled enough to trigger layout change
+      if (Math.abs(currentScrollPosition - lastScrollPosition) > 100) {
+        // Change grid layout dynamically based on scroll position
+        const columns = 1 + Math.floor(scrollProgress * 5); // Varies between 1-5 columns
+        const baseSize = 150 + Math.floor(Math.sin(scrollProgress * Math.PI) * 50);
+        
+        gallery.style.gridTemplateColumns = `repeat(auto-fill, minmax(${baseSize}px, 1fr))`;
+        
+        // Add staggered movement for items
+        items.forEach((item, index) => {
+          const staggerDelay = index * 30;
+          setTimeout(() => {
+            item.style.transition = `all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)`;
+          }, staggerDelay);
+        });
+        
+        lastScrollPosition = currentScrollPosition;
+      }
+      
+      gridAnimationTicking = false;
+    }
+    
+    window.addEventListener('scroll', () => {
+      if (!gridAnimationTicking) {
+        requestAnimationFrame(updateGridLayout);
+        gridAnimationTicking = true;
+      }
+    });
+    
+    // Initialize scroll-triggered animations
+    animateOnScroll();
+    updateGridLayout();
+  }
+  
+  // Initialize effects when the document is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add CSS for particle effects
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .gallery-item {
+        position: relative;
+        overflow: hidden;
+        transform-style: preserve-3d;
+        will-change: transform, opacity, filter;
+      }
+      
+      .gallery-item::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: -10%;
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(circle at center, rgba(52, 152, 219, 0.2), transparent 70%);
+        opacity: 0;
+        transform: translateZ(-1px);
+        transition: opacity 0.5s ease;
+        pointer-events: none;
+      }
+      
+      .gallery-item:hover::before {
+        opacity: 1;
+      }
+      
+      .gallery-item .particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+      }
+      
+      .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10;
+      }
+      
+      @keyframes floatingCard {
+        0% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-15px) rotate(2deg); }
+        50% { transform: translateY(0) rotate(0deg); }
+        75% { transform: translateY(10px) rotate(-2deg); }
+        100% { transform: translateY(0) rotate(0deg); }
+      }
+      
+      @keyframes glowPulse {
+        0% { box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2); }
+        50% { box-shadow: 0 5px 30px rgba(52, 152, 219, 0.6); }
+        100% { box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2); }
+      }
+      
+      .gallery-item.in-view {
+        animation: floatingCard 6s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
+      }
+      
+      .gallery-container {
+        perspective: 1000px;
+      }
+      
+      /* Dynamic grid layout animation */
+      @keyframes gridFlux {
+        0% { grid-gap: 1.5rem; }
+        50% { grid-gap: 2rem; }
+        100% { grid-gap: 1.5rem; }
+      }
+      
+      .gallery {
+        animation: gridFlux 15s ease-in-out infinite;
+        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+    `;
+    document.head.appendChild(styleElement);
+    
+    // Add particle effects to images
+    function createParticles() {
+      document.querySelectorAll('.gallery-item').forEach(item => {
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'particles';
+        
+        // Create random particles for each gallery item
+        for (let i = 0; i < 20; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          
+          // Random size
+          const size = Math.random() * 4 + 1;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
+          
+          // Random position
+          particle.style.left = `${Math.random() * 100}%`;
+          particle.style.top = `${Math.random() * 100}%`;
+          
+          // Create unique animation
+          const duration = Math.random() * 20 + 10;
+          const delay = Math.random() * 5;
+          
+          particle.style.animation = `
+            float ${duration}s ease-in-out ${delay}s infinite alternate,
+            pulse ${duration/2}s ease-in-out ${delay}s infinite alternate
+          `;
+          
+          particleContainer.appendChild(particle);
+        }
+        
+        item.appendChild(particleContainer);
+        
+        // Add mousemove parallax effect
+        item.addEventListener('mousemove', (e) => {
+          const boundingRect = item.getBoundingClientRect();
+          const x = e.clientX - boundingRect.left;
+          const y = e.clientY - boundingRect.top;
+          
+          const xPercent = x / boundingRect.width;
+          const yPercent = y / boundingRect.height;
+          
+          const image = item.querySelector('img');
+          const caption = item.querySelector('.caption');
+          
+          // Move image slightly in opposite direction of mouse
+          image.style.transform = `translate(${(xPercent - 0.5) * -10}px, ${(yPercent - 0.5) * -10}px) scale(1.1)`;
+          
+          // Move caption with mouse
+          if (caption) {
+            caption.style.transform = `translate(${(xPercent - 0.5) * 5}px, ${(yPercent - 0.5) * 5}px)`;
+          }
+          
+          // Move particles for depth effect
+          const particles = item.querySelectorAll('.particle');
+          particles.forEach((particle, index) => {
+            const depth = (index % 5) + 1;
+            particle.style.transform = `translate(${(xPercent - 0.5) * depth * 20}px, ${(yPercent - 0.5) * depth * 20}px)`;
+          });
+        });
+        
+        // Reset transforms when mouse leaves
+        item.addEventListener('mouseleave', () => {
+          const image = item.querySelector('img');
+          const caption = item.querySelector('.caption');
+          const particles = item.querySelectorAll('.particle');
+          
+          image.style.transform = '';
+          if (caption) caption.style.transform = '';
+          particles.forEach(particle => {
+            particle.style.transform = '';
+          });
+        });
+      });
+    }
+    
+    // Initialize advanced animations
+    setupAdvancedAnimations();
+    createParticles();
+    
+    // Add keyframe animations for particles
+    const particleStyles = document.createElement('style');
+    particleStyles.textContent = `
+      @keyframes float {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(20px, 20px); }
+      }
+      
+      @keyframes pulse {
+        0% { opacity: 0; }
+        50% { opacity: 0.8; }
+        100% { opacity: 0; }
+      }
+    `;
+    document.head.appendChild(particleStyles);
+  });
